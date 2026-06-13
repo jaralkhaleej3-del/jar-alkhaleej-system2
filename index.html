@@ -307,18 +307,33 @@
       });
     }
 
-    function generatePDF() {
-      const element = document.getElementById('printArea');
-      const filenameLabel = document.getElementById('cust_name').value || 'طلب_إنتاج';
-      const options = {
-        margin:       [10, 10, 10, 10],
-        filename:     'فاتورة_تفصيل_' + filenameLabel + '.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2.5, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-      html2pdf().from(element).set(options).save();
-    }
+   function generatePDF() {
+    const element = document.getElementById('printArea');
+    const filenameLabel = document.getElementById('cust_name').value || 'فاتورة_طلب';
+    
+    // إخفاء الأزرار قبل الطباعة لكي لا تظهر في الـ PDF
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(btn => btn.style.display = 'none');
+
+    const options = {
+        margin: 5,
+        filename: filenameLabel + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 2, 
+            letterRendering: true, 
+            useCORS: true,
+            windowWidth: document.documentElement.offsetWidth // هذا يضمن قراءة عرض الشاشة الصحيح
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // استخدام Promise لضمان تحميل العناصر قبل التحويل
+    html2pdf().set(options).from(element).save().then(() => {
+        // إعادة إظهار الأزرار بعد انتهاء التحميل
+        buttons.forEach(btn => btn.style.display = 'block');
+    });
+}
     syncMeta();
   </script>
 </body>
