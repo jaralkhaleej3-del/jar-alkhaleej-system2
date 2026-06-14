@@ -307,34 +307,96 @@
       });
     }
 
-   function generatePDF() {
+   
+    
+function generatePDF() {
     const element = document.getElementById('printArea');
     const filenameLabel = document.getElementById('cust_name').value || 'فاتورة_طلب';
-    
-    // إخفاء الأزرار قبل الطباعة لكي لا تظهر في الـ PDF
     const buttons = document.querySelectorAll('button');
+    
+    // إخفاء الأزرار قبل الطباعة
     buttons.forEach(btn => btn.style.display = 'none');
 
     const options = {
         margin: 5,
         filename: filenameLabel + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
+        image: { type: 'jpeg', quality: 0.8 }, // تقليل الجودة قليلاً يمنع انهيار المتصفح على الجوال
         html2canvas: { 
             scale: 2, 
-            letterRendering: true, 
             useCORS: true,
-            windowWidth: document.documentElement.offsetWidth // هذا يضمن قراءة عرض الشاشة الصحيح
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: document.documentElement.offsetWidth,
+            logging: false // إيقاف التسجيل لتسريع الأداء
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // استخدام Promise لضمان تحميل العناصر قبل التحويل
+    // استخدام الدالة بشكل مباشر مع معالجة الأخطاء
     html2pdf().set(options).from(element).save().then(() => {
-        // إعادة إظهار الأزرار بعد انتهاء التحميل
         buttons.forEach(btn => btn.style.display = 'block');
+    }).catch(err => {
+        console.error("PDF Error:", err);
+        buttons.forEach(btn => btn.style.display = 'block');
+        alert("تعذر إنشاء الـ PDF، يرجى التأكد من استخدام متصفح كروم وتجربة عدد أصناف أقل.");
     });
 }
+function shareOnWhatsApp() {
+    const custName = document.getElementById('cust_name').value || 'العميل';
+    const message = `مرحباً، تم إصدار فاتورة طلب جديدة لـ: ${custName}. يرجى مراجعة الفاتورة المرفقة.`;
+    
+    // هذا الرابط يفتح واتساب ويجعل المستخدم يختار الشخص الذي يريد الإرسال له
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    
+    window.open(whatsappUrl, '_blank');
+}
+
+
+
+async function sharePDF() {
+    const element = document.getElementById('printArea');
+    const filename = (document.getElementById('cust_name').value || 'فاتورة_طلب') + '.pdf';
+    
+    // 1. تحويل الـ HTML إلى Blob (ملف في الذاكرة)
+    const opt = {
+        margin: 5,
+        image: { type: 'jpeg', quality: 0.8 },
+        html2canvas: { scale: 2, useCORS: true, windowWidth: document.documentElement.offsetWidth },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    try {
+        // إنشاء ملف PDF من الصفحة
+        const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+        
+        // 2. إنشاء ملف من الـ Blob ليكون قابلاً للمشاركة
+        const file = new File([pdfBlob], filename, { type: 'application/pdf' });
+
+        // 3. التحقق من دعم المتصفح لميزة المشاركة
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: 'فاتورة شركة جار الخليج',
+                text: 'إليك فاتورة الطلب الخاصة بك.'
+            });
+        } else {
+            alert("متصفحك لا يدعم المشاركة المباشرة للملفات. يرجى تحميل الملف أولاً.");
+        }
+    } catch (err) {
+        console.error("خطأ في المشاركة:", err);
+        alert("تعذر مشاركة الملف.");
+    }
+}
+
+
     syncMeta();
-  </script>
+ 
+ 
+ 
+ 
+ </script>
+
+
+
 </body>
 </html>
