@@ -57,16 +57,13 @@
     .action-del { background: none; border: none; color: #c0392b; cursor: pointer; font-weight: bold; font-size: 14px; }
   
 body {
-    /* جعل الصفحة تحتضن الصورة */
     background-image: url('page.png');
-    background-size: cover; /* تغطية كامل الشاشة */
+    background-size: cover; 
     background-position: center;
-    background-attachment: fixed; /* تثبيت الخلفية عند التمرير */
+    background-attachment: fixed; 
     background-repeat: no-repeat;
     position: relative;
 }
-
-/* هذه الطبقة هي المسؤولة عن "تشفيف" الصورة */
 body::before {
     content: "";
     position: fixed;
@@ -74,10 +71,9 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.8); /* هنا تتحكم بالشفافية: كلما زاد الرقم (0.8) زاد بياض الخلفية */
-    z-index: -1; /* وضعها خلف كل العناصر */
+    background-color: rgba(255, 255, 255, 0.8); 
+    z-index: -1; 
 }
-
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
@@ -109,6 +105,30 @@ body::before {
           </div>
         </div>
 
+        <div class="form-row">
+          <div class="form-group">
+            <label>نوع العميل *</label>
+            <select id="cust_type" required onchange="syncMeta()">
+              <option value="">اختر النوع...</option>
+              <option value="فرد">فرد</option>
+              <option value="مؤسسة/شركة">مؤسسة/شركة</option>
+              <option value="موزع">موزع</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>طريقة الطلب *</label>
+            <select id="order_method" required onchange="syncMeta()">
+              <option value="">اختر الطريقة...</option>
+              <option value="اتصال">اتصال</option>
+              <option value="زيارة">زيارة</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>منسق الطلب *</label>
+          <input type="text" id="order_coordinator" placeholder="اسم الموظف المسؤول" oninput="syncMeta()" required>
+        </div>
+
         <div class="section-divider">تفاصيل الصنف الحالي والكمية</div>
         
         <form id="itemForm" onsubmit="insertItem(event)">
@@ -125,9 +145,7 @@ body::before {
               <option value="بانيو زاوية الملكة">بانيو زاوية الملكة</option>
               <option value="شاور مربع">شاور مربع</option>
               <option value="شاور زاوية">شاور زاوية</option>
-  <option value="بانيو كلاسيكي ميرا">بانيو كلاسيكي ميرا</option>
-
-              
+              <option value="بانيو كلاسيكي ميرا">بانيو كلاسيكي ميرا</option>
             </select>
           </div>
           
@@ -153,9 +171,9 @@ body::before {
                 <option value="">اختر الجوانب...</option>
                 <option value="أكريليك">أكريليك (Acrylic)</option>
                 <option value="فايبر">فايبر (Fiberglass)</option>
-                <option value="بدون جوانب  ">بدون جوانب </option>
-                 <option value="جوانب شاور  "> جوانب شاور  </option>
-                <option value="   دفن">  دفن </option>
+                <option value="بدون جوانب">بدون جوانب</option>
+                <option value="جوانب شاور">جوانب شاور</option>
+                <option value="دفن">دفن</option>
               </select>
             </div>
             <div class="form-group">
@@ -165,8 +183,8 @@ body::before {
                 <option value="يمين">يمين</option>
                 <option value="يسار">يسار</option>
                 <option value="وسط">وسط</option>
-                   <option value="هراب شاور">هراب شاور</option>
-                    <option value="   دفن">  دفن </option>
+                <option value="هراب شاور">هراب شاور</option>
+                <option value="دفن">دفن</option>
               </select>
             </div>
           </div>
@@ -198,12 +216,14 @@ body::before {
               <div>
                 <div class="order-num-badge" id="view_order_no">ORD-XXXX</div><br />
                 <strong>العميل:</strong> <span id="view_name">-</span><br />
-                <strong>الجوال:</strong> <span id="view_phone">-</span>
+                <strong>الجوال:</strong> <span id="view_phone">-</span><br />
+                <strong>نوع العميل:</strong> <span id="view_cust_type">-</span>
               </div>
               <div style="text-align: left;">
-                <strong>الفرع:</strong> <span id="view_branch">عام / لم يحدد</span><br />
-                <strong>التاريخ:</strong> <span id="view_date">-</span><br />
-                <strong>حالة المستند:</strong> <span style="color: var(--accent-color); font-weight: bold;">أمر إنتاج معتمد</span>
+                <strong>الفرع:</strong> <span id="view_branch">عام</span><br />
+                <strong>طريقة الطلب:</strong> <span id="view_order_method">-</span><br />
+                <strong>منسق الطلب:</strong> <span id="view_coordinator">-</span><br />
+                <strong>التاريخ:</strong> <span id="view_date">-</span>
               </div>
             </div>
 
@@ -222,7 +242,7 @@ body::before {
               </thead>
               <tbody id="tableBody">
                 <tr>
-                  <td colspan="7" class="empty-msg">الفاتورة فارغة حالياً. حدد بيانات الصنف ثم اضغط "إدراج".</td>
+                  <td colspan="8" class="empty-msg">الفاتورة فارغة حالياً. حدد بيانات الصنف ثم اضغط "إدراج".</td>
                 </tr>
               </tbody>
             </table>
@@ -239,14 +259,17 @@ body::before {
   </div>
 
   <script>
-    // تم ربط الكود بالرابط الخاص بك مباشرة
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxEHiiuyAPoLL8WLkVfMkC8OGmr2k7mCaE_quaF392kPs22AWEQH12DnhI2rjxQUrrx/exec";
     let itemsArray = [];
 
     function syncMeta() {
       document.getElementById('view_name').textContent = document.getElementById('cust_name').value || '-';
-      document.getElementById('view_branch').textContent = document.getElementById('branch_name').value || 'عام / لم يحدد';
+      document.getElementById('view_branch').textContent = document.getElementById('branch_name').value || 'عام';
       document.getElementById('view_phone').textContent = document.getElementById('cust_phone').value || '-';
+      document.getElementById('view_cust_type').textContent = document.getElementById('cust_type').value || '-';
+      document.getElementById('view_order_method').textContent = document.getElementById('order_method').value || '-';
+      document.getElementById('view_coordinator').textContent = document.getElementById('order_coordinator').value || '-';
+      
       if(document.getElementById('view_date').textContent === '-') {
         document.getElementById('view_date').textContent = new Date().toLocaleDateString('ar-SA');
       }
@@ -279,7 +302,7 @@ body::before {
     function refreshTable() {
       const tbody = document.getElementById('tableBody');
       if(itemsArray.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="empty-msg">الفاتورة فارغة حالياً. حدد بيانات الصنف ثم اضغط "إدراج".</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="empty-msg">الفاتورة فارغة حالياً. حدد بيانات الصنف ثم اضغط "إدراج".</td></tr>`;
         return;
       }
       tbody.innerHTML = "";
@@ -303,10 +326,15 @@ body::before {
     function submitToCloud() {
       const name = document.getElementById('cust_name').value;
       const phone = document.getElementById('cust_phone').value;
-      if(!name || !phone) {
-        alert("يرجى ملء اسم العميل ورقم الجوال أولاً!");
+      const custType = document.getElementById('cust_type').value;
+      const orderMethod = document.getElementById('order_method').value;
+      const coordinator = document.getElementById('order_coordinator').value;
+
+      if(!name || !phone || !custType || !orderMethod || !coordinator) {
+        alert("يرجى التأكد من ملء جميع الحقول المطلوبة (اسم العميل، الجوال، نوع العميل، طريقة الطلب، ومنسق الطلب)!");
         return;
       }
+      
       const mainBtn = document.getElementById('submitBtn');
       mainBtn.disabled = true;
       mainBtn.textContent = 'جاري الحفظ سحابياً والاعتماد المستندي...';
@@ -315,6 +343,9 @@ body::before {
         cust_name: name,
         branch_name: document.getElementById('branch_name').value,
         cust_phone: phone,
+        cust_type: custType,
+        order_method: orderMethod,
+        coordinator: coordinator,
         items: itemsArray
       };
 
@@ -337,96 +368,25 @@ body::before {
       });
     }
 
-   
-    
-function generatePDF() {
-    const element = document.getElementById('printArea');
-    const filenameLabel = document.getElementById('cust_name').value || 'فاتورة_طلب';
-    const buttons = document.querySelectorAll('button');
-    
-    // إخفاء الأزرار قبل الطباعة
-    buttons.forEach(btn => btn.style.display = 'none');
-
-    const options = {
-        margin: 5,
-        filename: filenameLabel + '.pdf',
-        image: { type: 'jpeg', quality: 0.8 }, // تقليل الجودة قليلاً يمنع انهيار المتصفح على الجوال
-        html2canvas: { 
-            scale: 2, 
-            useCORS: true,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: document.documentElement.offsetWidth,
-            logging: false // إيقاف التسجيل لتسريع الأداء
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    // استخدام الدالة بشكل مباشر مع معالجة الأخطاء
-    html2pdf().set(options).from(element).save().then(() => {
-        buttons.forEach(btn => btn.style.display = 'block');
-    }).catch(err => {
-        console.error("PDF Error:", err);
-        buttons.forEach(btn => btn.style.display = 'block');
-        alert("تعذر إنشاء الـ PDF، يرجى التأكد من استخدام متصفح كروم وتجربة عدد أصناف أقل.");
-    });
-}
-function shareOnWhatsApp() {
-    const custName = document.getElementById('cust_name').value || 'العميل';
-    const message = `مرحباً، تم إصدار فاتورة طلب جديدة لـ: ${custName}. يرجى مراجعة الفاتورة المرفقة.`;
-    
-    // هذا الرابط يفتح واتساب ويجعل المستخدم يختار الشخص الذي يريد الإرسال له
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    
-    window.open(whatsappUrl, '_blank');
-}
-
-
-
-async function sharePDF() {
-    const element = document.getElementById('printArea');
-    const filename = (document.getElementById('cust_name').value || 'فاتورة_طلب') + '.pdf';
-    
-    // 1. تحويل الـ HTML إلى Blob (ملف في الذاكرة)
-    const opt = {
-        margin: 5,
-        image: { type: 'jpeg', quality: 0.8 },
-        html2canvas: { scale: 2, useCORS: true, windowWidth: document.documentElement.offsetWidth },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    try {
-        // إنشاء ملف PDF من الصفحة
-        const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
-        
-        // 2. إنشاء ملف من الـ Blob ليكون قابلاً للمشاركة
-        const file = new File([pdfBlob], filename, { type: 'application/pdf' });
-
-        // 3. التحقق من دعم المتصفح لميزة المشاركة
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                files: [file],
-                title: 'فاتورة شركة جار الخليج',
-                text: 'إليك فاتورة الطلب الخاصة بك.'
-            });
-        } else {
-            alert("متصفحك لا يدعم المشاركة المباشرة للملفات. يرجى تحميل الملف أولاً.");
-        }
-    } catch (err) {
-        console.error("خطأ في المشاركة:", err);
-        alert("تعذر مشاركة الملف.");
+    function generatePDF() {
+        const element = document.getElementById('printArea');
+        const filenameLabel = document.getElementById('cust_name').value || 'فاتورة_طلب';
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(btn => btn.style.display = 'none');
+        const options = {
+            margin: 5,
+            filename: filenameLabel + '.pdf',
+            image: { type: 'jpeg', quality: 0.8 },
+            html2canvas: { scale: 2, useCORS: true, windowWidth: document.documentElement.offsetWidth },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(options).from(element).save().then(() => {
+            buttons.forEach(btn => btn.style.display = 'block');
+        }).catch(err => {
+            buttons.forEach(btn => btn.style.display = 'block');
+            alert("تعذر إنشاء الـ PDF");
+        });
     }
-}
-
-
-    syncMeta();
- 
- 
- 
- 
- </script>
-
-
-
+  </script>
 </body>
 </html>
