@@ -286,21 +286,38 @@
       </tr>`).join('');
     }
 
-    function generatePDF() {
-      const element = document.getElementById('printArea');
-      const opt = {
+   function generatePDF() {
+    const element = document.getElementById('printArea');
+    const filenameLabel = document.getElementById('cust_name').value || 'فاتورة_طلب';
+    const buttons = document.querySelectorAll('button');
+    
+    // إخفاء الأزرار قبل الطباعة
+    buttons.forEach(btn => btn.style.display = 'none');
+
+    const options = {
         margin: 5,
-        filename: 'Invoice.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, windowWidth: document.documentElement.offsetWidth },
+        filename: filenameLabel + '.pdf',
+        image: { type: 'jpeg', quality: 0.8 }, // تقليل الجودة قليلاً يمنع انهيار المتصفح على الجوال
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: document.documentElement.offsetWidth,
+            logging: false // إيقاف التسجيل لتسريع الأداء
+        },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-      // الحل لمشكلة الجوال: إخفاء العناصر غير المرغوبة مؤقتاً
-      document.querySelectorAll('.hide-on-pdf').forEach(el => el.style.display = 'none');
-      html2pdf().set(opt).from(element).save().then(() => {
-        document.querySelectorAll('.hide-on-pdf').forEach(el => el.style.display = 'block');
-      });
-    }
+    };
+
+    // استخدام الدالة بشكل مباشر مع معالجة الأخطاء
+    html2pdf().set(options).from(element).save().then(() => {
+        buttons.forEach(btn => btn.style.display = 'block');
+    }).catch(err => {
+        console.error("PDF Error:", err);
+        buttons.forEach(btn => btn.style.display = 'block');
+        alert("تعذر إنشاء الـ PDF، يرجى التأكد من استخدام متصفح كروم وتجربة عدد أصناف أقل.");
+    });
+}
 
    function submitToCloud() {
       const name = document.getElementById('cust_name').value;
