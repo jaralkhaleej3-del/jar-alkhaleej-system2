@@ -55,25 +55,8 @@
     .empty-msg { padding: 30px !important; color: #999; font-style: italic; text-align: center; }
     .invoice-footer { text-align: center; font-size: 11px; color: #7a8a94; margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; }
     .action-del { background: none; border: none; color: #c0392b; cursor: pointer; font-weight: bold; font-size: 14px; }
-  
-body {
-    background-image: url('page.png');
-    background-size: cover; 
-    background-position: center;
-    background-attachment: fixed; 
-    background-repeat: no-repeat;
-    position: relative;
-}
-body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.8); 
-    z-index: -1; 
-}
+    body { background-image: url('page.png'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; position: relative; }
+    body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.8); z-index: -1; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
@@ -148,6 +131,21 @@ body::before {
               <option value="بانيو كلاسيكي ميرا">بانيو كلاسيكي ميرا</option>
             </select>
           </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>اللون *</label>
+              <input type="text" id="item_color" placeholder="أدخل اللون" required>
+            </div>
+            <div class="form-group">
+              <label>الاكسسوارات *</label>
+              <input type="text" id="item_acc" placeholder="الاكسسوارات" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>نسبة الخصم (%) *</label>
+            <input type="number" id="item_discount" value="0" required>
+          </div>
           
           <div class="form-row-three">
             <div class="form-group">
@@ -169,8 +167,8 @@ body::before {
               <label>نوع الجوانب *</label>
               <select id="side_type" required>
                 <option value="">اختر الجوانب...</option>
-                <option value="أكريليك">أكريليك (Acrylic)</option>
-                <option value="فايبر">فايبر (Fiberglass)</option>
+                <option value="أكريليك">أكريليك</option>
+                <option value="فايبر">فايبر</option>
                 <option value="بدون جوانب">بدون جوانب</option>
                 <option value="جوانب شاور">جوانب شاور</option>
                 <option value="دفن">دفن</option>
@@ -190,7 +188,7 @@ body::before {
           </div>
           <div class="form-group">
             <label>ملاحظات ومواصفات فنية إضافية</label>
-            <textarea id="notes" rows="2" placeholder="اكتب أي ملاحظات فنية خاصة بالقص والتدعيم..."></textarea>
+            <textarea id="notes" rows="2" placeholder="ملاحظات خاصة بالقص والتدعيم..."></textarea>
           </div>
           
           <button type="submit" class="btn-add">➕ إدراج هذا الصنف بالفاتورة الحالية</button>
@@ -230,20 +228,12 @@ body::before {
             <table class="invoice-table">
               <thead>
                 <tr>
-                  <th style="width: 5%;">#</th>
-                  <th style="width: 25%;">اسم وموديل الصنف</th>
-                  <th style="width: 10%;">الكمية</th>
-                  <th style="width: 18%;">المقاس (طول×عرض)</th>
-                  <th style="width: 12%;">الجوانب</th>
-                  <th style="width: 12%;">الهراب</th>
-                  <th style="width: 18%;">ملاحظات فنية</th>
-                  <th class="hide-on-pdf" id="action_title" style="width: 5%; background: transparent !important; border: none;"></th>
+                  <th>#</th><th>الصنف</th><th>الكمية</th><th>المقاس</th><th>اللون</th><th>الاكسسوارات</th><th>الخصم</th><th>ملاحظات</th>
+                  <th class="hide-on-pdf"></th>
                 </tr>
               </thead>
               <tbody id="tableBody">
-                <tr>
-                  <td colspan="8" class="empty-msg">الفاتورة فارغة حالياً. حدد بيانات الصنف ثم اضغط "إدراج".</td>
-                </tr>
+                <tr><td colspan="9" class="empty-msg">الفاتورة فارغة حالياً.</td></tr>
               </tbody>
             </table>
 
@@ -269,82 +259,69 @@ body::before {
       document.getElementById('view_cust_type').textContent = document.getElementById('cust_type').value || '-';
       document.getElementById('view_order_method').textContent = document.getElementById('order_method').value || '-';
       document.getElementById('view_coordinator').textContent = document.getElementById('order_coordinator').value || '-';
-      
-      if(document.getElementById('view_date').textContent === '-') {
-        document.getElementById('view_date').textContent = new Date().toLocaleDateString('ar-SA');
-      }
+      if(document.getElementById('view_date').textContent === '-') document.getElementById('view_date').textContent = new Date().toLocaleDateString('ar-SA');
     }
 
     function insertItem(e) {
       e.preventDefault();
-      const item = {
-        item_name: document.getElementById('item_name').value,
-        item_qty: document.getElementById('item_qty').value,
-        item_length: document.getElementById('item_length').value,
-        item_width: document.getElementById('item_width').value,
-        side_type: document.getElementById('side_type').value,
-        drain_dir: document.getElementById('drain_dir').value,
-        notes: document.getElementById('notes').value || 'لا يوجد'
-      };
-      itemsArray.push(item);
+      itemsArray.push({
+        name: document.getElementById('item_name').value,
+        qty: document.getElementById('item_qty').value,
+        size: document.getElementById('item_length').value + 'x' + document.getElementById('item_width').value,
+        color: document.getElementById('item_color').value,
+        acc: document.getElementById('item_acc').value,
+        discount: document.getElementById('item_discount').value,
+        notes: document.getElementById('notes').value
+      });
       refreshTable();
       document.getElementById('itemForm').reset();
-      document.getElementById('item_qty').value = "1";
       document.getElementById('submitBtn').disabled = false;
-    }
-
-    function removeItem(index) {
-      itemsArray.splice(index, 1);
-      refreshTable();
-      if(itemsArray.length === 0) document.getElementById('submitBtn').disabled = true;
     }
 
     function refreshTable() {
       const tbody = document.getElementById('tableBody');
-      if(itemsArray.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="empty-msg">الفاتورة فارغة حالياً. حدد بيانات الصنف ثم اضغط "إدراج".</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = "";
-      itemsArray.forEach((item, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td style="text-align: right; font-weight: bold; color: var(--primary-color);">${item.item_name}</td>
-          <td style="font-weight: bold; color: var(--green-leaf); font-size: 14px;">${item.item_qty}</td>
-          <td style="font-weight: bold;">${item.item_length} × ${item.item_width} سم</td>
-          <td>${item.side_type}</td>
-          <td>${item.drain_dir}</td>
-          <td style="text-align: right; font-size: 11px; color: #444;">${item.notes}</td>
-          <td class="hide-on-pdf" style="border:none; background:transparent;"><button type="button" class="action-del" onclick="removeItem(${index})">❌</button></td>
-        `;
-        tbody.appendChild(row);
-      });
-      syncMeta();
+      tbody.innerHTML = itemsArray.map((item, i) => `<tr>
+        <td>${i+1}</td><td>${item.name}</td><td>${item.qty}</td><td>${item.size}</td><td>${item.color}</td><td>${item.acc}</td><td>${item.discount}%</td><td>${item.notes}</td>
+        <td class="hide-on-pdf"><button class="action-del" onclick="itemsArray.splice(${i},1); refreshTable()">❌</button></td>
+      </tr>`).join('');
     }
 
-    function submitToCloud() {
+    function generatePDF() {
+      const element = document.getElementById('printArea');
+      const opt = {
+        margin: 5,
+        filename: 'Invoice.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, windowWidth: document.documentElement.offsetWidth },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      // الحل لمشكلة الجوال: إخفاء العناصر غير المرغوبة مؤقتاً
+      document.querySelectorAll('.hide-on-pdf').forEach(el => el.style.display = 'none');
+      html2pdf().set(opt).from(element).save().then(() => {
+        document.querySelectorAll('.hide-on-pdf').forEach(el => el.style.display = 'block');
+      });
+    }
+
+   function submitToCloud() {
       const name = document.getElementById('cust_name').value;
       const phone = document.getElementById('cust_phone').value;
-      const custType = document.getElementById('cust_type').value;
-      const orderMethod = document.getElementById('order_method').value;
       const coordinator = document.getElementById('order_coordinator').value;
 
-      if(!name || !phone || !custType || !orderMethod || !coordinator) {
-        alert("يرجى التأكد من ملء جميع الحقول المطلوبة (اسم العميل، الجوال، نوع العميل، طريقة الطلب، ومنسق الطلب)!");
+      if(!name || !phone || !coordinator || itemsArray.length === 0) {
+        alert("يرجى ملء البيانات الأساسية وإضافة صنف واحد على الأقل!");
         return;
       }
       
       const mainBtn = document.getElementById('submitBtn');
       mainBtn.disabled = true;
-      mainBtn.textContent = 'جاري الحفظ سحابياً والاعتماد المستندي...';
+      mainBtn.textContent = 'جاري الحفظ والاعتماد...';
 
       const payload = {
         cust_name: name,
-        branch_name: document.getElementById('branch_name').value,
         cust_phone: phone,
-        cust_type: custType,
-        order_method: orderMethod,
+        branch_name: document.getElementById('branch_name').value,
+        cust_type: document.getElementById('cust_type').value,
+        order_method: document.getElementById('order_method').value,
         coordinator: coordinator,
         items: itemsArray
       };
@@ -354,38 +331,30 @@ body::before {
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       })
+      .then(response => response.text())
       .then(() => {
-        document.getElementById('view_order_no').textContent = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
+        // 1. إظهار رسالة النجاح
         document.getElementById('successAlert').style.display = 'block';
-        document.getElementById('pdfBtn').disabled = false;
+        
+        // 2. تغيير نص الزر
         mainBtn.textContent = 'تم الاعتماد والتسجيل بنجاح ✅';
+        
+        // 3. تفعيل زر الـ PDF
+        const pdfBtn = document.getElementById('pdfBtn');
+        pdfBtn.disabled = false;
+        
+        // 4. إخفاء أزرار الحذف من الجدول ليكون المستند جاهزاً للطباعة
         document.querySelectorAll('.hide-on-pdf').forEach(el => el.style.display = 'none');
+        
+        // 5. توليد رقم طلب عشوائي
+        document.getElementById('view_order_no').textContent = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
       })
       .catch(err => {
         console.error(err);
-        alert("فشل في المزامنة سحابياً، يرجى مراجعة إعدادات المحرك السحابي.");
+        alert("فشل في المزامنة سحابياً، يرجى مراجعة الاتصال.");
         mainBtn.disabled = false;
+        mainBtn.textContent = 'حفظ واعتماد الفاتورة سحابياً';
       });
-    }
-
-    function generatePDF() {
-        const element = document.getElementById('printArea');
-        const filenameLabel = document.getElementById('cust_name').value || 'فاتورة_طلب';
-        const buttons = document.querySelectorAll('button');
-        buttons.forEach(btn => btn.style.display = 'none');
-        const options = {
-            margin: 5,
-            filename: filenameLabel + '.pdf',
-            image: { type: 'jpeg', quality: 0.8 },
-            html2canvas: { scale: 2, useCORS: true, windowWidth: document.documentElement.offsetWidth },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().set(options).from(element).save().then(() => {
-            buttons.forEach(btn => btn.style.display = 'block');
-        }).catch(err => {
-            buttons.forEach(btn => btn.style.display = 'block');
-            alert("تعذر إنشاء الـ PDF");
-        });
     }
   </script>
 </body>
