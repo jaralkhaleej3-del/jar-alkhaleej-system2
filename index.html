@@ -1,380 +1,253 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>شركة جار الخليج للصناعة - نظام الطلبات الموحد</title>
-  <style>
-    :root {
-      --primary-color: #19352d; 
-      --accent-color: #b68d59; 
-      --green-leaf: #70a443; 
-      --bg-main: #f8faf9;
-      --card-bg: #ffffff;
-      --border-color: #dbe4e0;
-      --text-color: #19352d;
+    <meta charset="UTF-8">
+    <title>نظام إدارة الإنتاج - شركة جار الخليج</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
+        :root { --primary: #19352d; --accent: #b68d59; --bg: #f0f2f0; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); padding: 20px; color: #333; }
+        
+        .wrapper { max-width: 1500px; margin: auto; display: grid; grid-template-columns: 450px 1fr; gap: 25px; }
+        .card { background: #fff; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        
+        h2 { color: var(--primary); border-right: 4px solid var(--accent); padding-right: 15px; font-size: 18px; margin-bottom: 20px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        label { display: block; font-weight: 700; font-size: 12px; margin-bottom: 5px; color: #555; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; transition: 0.3s; }
+        input:focus { border-color: var(--accent); outline: none; }
+        
+        .btn-add { background: var(--primary); color: #fff; width: 100%; padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; }
+        .btn-save { background: #27ae60; color: #fff; width: 100%; padding: 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .invoice-box { background: #fff; padding: 30px; border: 1px solid #eee; border-radius: 10px; }
+        .header-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; font-size: 13px; background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #ddd; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: var(--primary); color: #fff; padding: 10px; font-size: 10px; border: 1px solid #fff; }
+        td { padding: 8px; border: 1px solid #eee; text-align: center; font-size: 11px; color: #444; }
+        
+       
+        .btn-export { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; font-size: 14px; }
+@media print {
+    body * { visibility: hidden; }
+    #printArea, #printArea * { visibility: visible; }
+    #printArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        direction: rtl; /* ضمان الاتجاه */
     }
-    .hidden-for-print { display: none !important; }
-    
-    * { box-sizing: border-box; font-family: Tahoma, Arial, sans-serif; margin: 0; padding: 0; }
-    body { background-color: var(--bg-main); color: var(--text-color); padding: 40px 20px; }
-    .container { max-width: 1350px; margin: 0 auto; }
-    .main-header { text-align: center; margin-bottom: 40px; }
-    .main-title { font-size: 26px; font-weight: bold; color: var(--primary-color); }
-    .sub-title { font-size: 16px; color: var(--accent-color); margin-top: 4px; }
-    .grid-layout { display: grid; grid-template-columns: 1.1fr 1.3fr; gap: 30px; align-items: start; }
-    @media (max-width: 1150px) { .grid-layout { grid-template-columns: 1fr; } }
-    .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 30px; box-shadow: 0 8px 24px rgba(25, 53, 45, 0.04); }
-    .card-title { font-size: 18px; color: var(--primary-color); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--border-color); position: relative; }
-    .card-title::after { content: ''; position: absolute; bottom: -2px; right: 0; width: 50px; height: 2px; background: var(--accent-color); }
-    .section-divider { margin: 30px 0 15px 0; color: var(--accent-color); font-weight: bold; font-size: 14px; border-bottom: 1px dashed var(--border-color); padding-bottom: 5px; }
-    .form-group { margin-bottom: 16px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .form-row-three { display: grid; grid-template-columns: 1.2fr 0.8fr 1fr; gap: 15px; }
-    label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: var(--primary-color); }
-    input, select, textarea { width: 100%; padding: 12px; font-size: 14px; border: 1px solid var(--border-color); border-radius: 10px; outline: none; background: #fff; }
-    input:focus, select:focus, textarea:focus { border-color: var(--green-leaf); box-shadow: 0 0 0 3px rgba(112, 164, 67, 0.1); }
-    .btn-add { background: #fff; color: var(--green-leaf); border: 2px solid var(--green-leaf); width: 100%; padding: 12px; font-weight: bold; border-radius: 10px; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
-    .btn-add:hover { background: var(--green-leaf); color: #fff; }
-    .btn-submit { background: var(--primary-color); color: #fff; width: 100%; padding: 14px; font-size: 16px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 20px; }
-    .btn-submit:hover { background: #23493e; }
-    .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
-    .btn-pdf { background: linear-gradient(180deg, #82be4f, #5b9332); color: white; width: 100%; padding: 15px; font-size: 16px; font-weight: bold; border: none; border-radius: 12px; margin-top: 25px; cursor: pointer; display: block; text-align: center; box-shadow: 0 4px 12px rgba(91, 147, 50, 0.3); }
-    .btn-pdf:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; opacity: 0.6; }
-    .alert-box { background-color: #eef7e8; border: 1px solid #cce8b5; color: #3b661d; padding: 15px; border-radius: 10px; font-weight: bold; text-align: center; margin-bottom: 20px; display: none; }
-    .invoice-pdf-area { background: #fff; border: 1px solid #c0cdc7; border-radius: 12px; width: 100%; display: block; overflow: visible; }
-    .invoice-header-bar { background-color: var(--primary-color); color: #fff; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-    .invoice-logo-block h3 { font-size: 16px; margin: 0; font-weight: bold; }
-    .invoice-logo-block p { font-size: 11px; color: #a1b5ad; margin-top: 2px; }
-    .invoice-tag { font-size: 12px; border: 1px solid rgba(255,255,255,0.3); padding: 4px 10px; border-radius: 4px; background: rgba(255,255,255,0.05); }
-    .invoice-content { padding: 25px; }
-    .invoice-meta { display: flex; justify-content: space-between; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px dashed var(--border-color); font-size: 13px; line-height: 1.6; }
-    .order-num-badge { background: var(--primary-color); color: #fff; padding: 4px 10px; border-radius: 4px; font-weight: bold; display: inline-block; margin-bottom: 5px; }
-    .invoice-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
-    .invoice-table th { background-color: #edf2f0 !important; color: var(--primary-color) !important; font-weight: bold; padding: 10px; border: 1px solid #c0cdc7; text-align: center; }
-    .invoice-table td { padding: 10px; border: 1px solid #c0cdc7; text-align: center; color: #111; }
-    .invoice-table tr:nth-child(even) { background-color: #f9fbf9; }
-    .empty-msg { padding: 30px !important; color: #999; font-style: italic; text-align: center; }
-    .invoice-footer { text-align: center; font-size: 11px; color: #7a8a94; margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; }
-    .action-del { background: none; border: none; color: #c0392b; cursor: pointer; font-weight: bold; font-size: 14px; }
-    body { background-image: url('page.png'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; position: relative; }
-    body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.8); z-index: -1; }
-  </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+}
+@media print {
+    #printArea {
+        font-family: Tahoma, sans-serif !important;
+    }
+}
+#printArea {
+    width: 210mm; /* عرض صفحة A4 */
+    padding: 20px;
+    background: #fff;
+    margin: auto;
+}
+
+/* حل مشكلة تداخل العناصر عند التحويل */
+.invoice-box table {
+    table-layout: fixed; /* إجبار الجدول على عدم التمدد خارج الإطار */
+    width: 100%;
+}
+
+.invoice-box th, .invoice-box td {
+    word-wrap: break-word; /* كسر الكلمات الطويلة */
+    font-size: 10px; /* تصغير الخط قليلاً لضمان احتواء الأعمدة */
+}
+
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    <header class="main-header">
-      <h1 class="main-title">شركة جار الخليج للصناعة</h1>
-      <p class="sub-title">نظام إدارة وإصدار فواتير طلبات الإنتاج الموحد</p>
-    </header>
-
-    <div class="grid-layout">
-      <section class="card">
-        <div class="card-title">إدخال بيانات أمر الإنتاج الجديد</div>
-        <div id="successAlert" class="alert-box">تم حفظ واعتماد الفاتورة سحابياً بنجاح! جاهز لتحميل مستند الـ PDF.</div>
-        
-        <div class="form-group">
-          <label>اسم العميل / المؤسسة *</label>
-          <input type="text" id="cust_name" placeholder="أدخل الاسم أو اسم المؤسسة" oninput="syncMeta()">
+<div class="wrapper">
+    <div class="card">
+        <h2>بيانات العميل والطلب</h2>
+        <div class="form-row">
+            <div><label>اسم العميل</label><input type="text" id="v_name_in" oninput="sync()"></div>
+            <div><label>رقم الطلب</label><input type="text" id="v_ord_in" oninput="sync()"></div>
         </div>
         <div class="form-row">
-          <div class="form-group">
-            <label>الفرع</label>
-            <input type="text" id="branch_name" placeholder="الفرع الحالي" oninput="syncMeta()">
-          </div>
-          <div class="form-group">
-            <label>رقم الجوال *</label>
-            <input type="tel" id="cust_phone" placeholder="05xxxxxxxx" oninput="syncMeta()">
-          </div>
+            <div><label>الفرع</label><input type="text" id="v_br_in" oninput="sync()"></div>
+            <div><label>المنسق</label><input type="text" id="v_co_in" oninput="sync()"></div>
+        </div>
+        <div class="form-row">
+            <div><label>النوع</label><select id="v_ty_in" onchange="sync()"><option>فرد</option><option>مؤسسة</option><option>موزع</option></select></div>
+            <div><label>طريقة الطلب</label><select id="v_me_in" onchange="sync()"><option>اتصال</option><option>زيارة</option></select></div>
+        </div>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+        <h2>مواصفات الصنف التقنية</h2>
+        
+        <div class="form-row">
+            <div><label>الصنف</label>
+                <select id="i_name">
+                    <option value="بانيو كلاسيكي">بانيو كلاسيكي</option>
+                    <option value="بانيو جاكوزي">بانيو جاكوزي</option>
+                    <option value="شاور مربع">شاور مربع</option>
+                    <option value="شاور مستطيل">شاور مستطيل</option>
+                </select>
+            </div>
+            <div><label>اللون</label><input type="text" id="i_color"></div>
+        </div>
+        
+        <div class="form-row">
+            <div><label>الطول x العرض</label><input type="text" id="i_size"></div>
+            <div><label>الكمية</label><input type="number" id="i_qty" value="1"></div>
+        </div>
+        
+        <div class="form-row">
+            <div><label>نوع الجوانب</label>
+                <select id="i_side">
+                    <option value="أكريليك">أكريليك</option>
+                    <option value="فايبر">فايبر</option>
+                    <option value="بدون">بدون</option>
+                </select>
+            </div>
+            <div><label>الهرابات</label><input type="number" id="i_drain" value="1"></div>
+        </div>
+        
+        <div class="form-row">
+            <div><label>اتجاه الهراب</label>
+                <select id="i_drain_dir"><option>يمين</option><option>يسار</option><option>وسط</option></select>
+            </div>
+            <div><label>الاكسسوارات</label><input type="text" id="i_acc"></div>
         </div>
 
         <div class="form-row">
-          <div class="form-group">
-            <label>نوع العميل *</label>
-            <select id="cust_type" required onchange="syncMeta()">
-              <option value="">اختر النوع...</option>
-              <option value="فرد">فرد</option>
-              <option value="مؤسسة/شركة">مؤسسة/شركة</option>
-              <option value="موزع">موزع</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>طريقة الطلب *</label>
-            <select id="order_method" required onchange="syncMeta()">
-              <option value="">اختر الطريقة...</option>
-              <option value="اتصال">اتصال</option>
-              <option value="زيارة">زيارة</option>
-            </select>
-          </div>
+            <div><label>موعد التسليم</label><input type="date" id="i_del"></div>
+            <div><label>نسبة الخصم %</label><input type="number" id="i_disc" value="0"></div>
         </div>
-        <div class="form-group">
-          <label>منسق الطلب *</label>
-          <input type="text" id="order_coordinator" placeholder="اسم الموظف المسؤول" oninput="syncMeta()" required>
-        </div>
-
-        <div class="section-divider">تفاصيل الصنف الحالي والكمية</div>
         
-        <form id="itemForm" onsubmit="insertItem(event)">
-          <div class="form-group">
-            <label>اختر موديل الصنف *</label>
-            <select id="item_name" required>
-              <option value="">-- اختر صنف البانيو/الشاور من هنا --</option>
-              <option value="بانيو كلاسيكي مستطيل">بانيو كلاسيكي مستطيل</option>
-              <option value="بانيو كلاسيكي بيضاوي نحيف">بانيو كلاسيكي بيضاوي نحيف</option>
-              <option value="بانيو كلاسيكي بيضاوي عريض">بانيو كلاسيكي بيضاوي عريض</option>
-              <option value="بانيو كلاسيكي خزامي">بانيو كلاسيكي خزامي</option>
-              <option value="بانيو عادي اكريلي فوق البلاط">بانيو عادي اكريلي فوق البلاط</option>
-              <option value="بانيو عادي اكريلي دفن">بانيو عادي اكريلي دفن</option>
-              <option value="بانيو زاوية الملكة">بانيو زاوية الملكة</option>
-              <option value="شاور مربع">شاور مربع</option>
-              <option value="شاور زاوية">شاور زاوية</option>
-              <option value="بانيو كلاسيكي ميرا">بانيو كلاسيكي ميرا</option>
-            </select>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>اللون *</label>
-              <input type="text" id="item_color" placeholder="أدخل اللون" required>
-            </div>
-            <div class="form-group">
-              <label>الاكسسوارات *</label>
-              <input type="text" id="item_acc" placeholder="الاكسسوارات" required>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>نسبة الخصم (%) *</label>
-            <input type="number" id="item_discount" value="0" required>
-          </div>
-          
-          <div class="form-row-three">
-            <div class="form-group">
-              <label>الكمية (عدد القطع) *</label>
-              <input type="number" id="item_qty" min="1" value="1" required>
-            </div>
-            <div class="form-group">
-              <label>الطول (سم) *</label>
-              <input type="number" id="item_length" placeholder="170" required>
-            </div>
-            <div class="form-group">
-              <label>العرض (سم) *</label>
-              <input type="number" id="item_width" placeholder="70" required>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>نوع الجوانب *</label>
-              <select id="side_type" required>
-                <option value="">اختر الجوانب...</option>
-                <option value="أكريليك">أكريليك</option>
-                <option value="فايبر">فايبر</option>
-                <option value="بدون جوانب">بدون جوانب</option>
-                <option value="جوانب شاور">جوانب شاور</option>
-                <option value="دفن">دفن</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>اتجاه الهراب *</label>
-              <select id="drain_dir" required>
-                <option value="">اختر الاتجاه...</option>
-                <option value="يمين">يمين</option>
-                <option value="يسار">يسار</option>
-                <option value="وسط">وسط</option>
-                <option value="هراب شاور">هراب شاور</option>
-                <option value="دفن">دفن</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>ملاحظات ومواصفات فنية إضافية</label>
-            <textarea id="notes" rows="2" placeholder="ملاحظات خاصة بالقص والتدعيم..."></textarea>
-          </div>
-          
-          <button type="submit" class="btn-add">➕ إدراج هذا الصنف بالفاتورة الحالية</button>
-        </form>
-
-        <button type="button" id="submitBtn" class="btn-submit" onclick="submitToCloud()" disabled>حفظ واعتماد الفاتورة سحابياً</button>
-      </section>
-
-      <section class="card">
-        <div class="card-title">معاينة فاتورة الطلب المجمعة الحية</div>
-        
-        <div class="invoice-pdf-area" id="printArea">
-          <div class="invoice-header-bar">
-            <div class="invoice-logo-block">
-              <h3>شركة جار الخليج للصناعة</h3>
-              <p>Jar Al Khaleej Industrial Company</p>
-            </div>
-            <div class="invoice-tag">مستند تفصيل طلبات عميل</div>
-          </div>
-
-          <div class="invoice-content">
-            <div class="invoice-meta">
-              <div>
-                <div class="order-num-badge" id="view_order_no">ORD-XXXX</div><br />
-                <strong>العميل:</strong> <span id="view_name">-</span><br />
-                <strong>الجوال:</strong> <span id="view_phone">-</span><br />
-                <strong>نوع العميل:</strong> <span id="view_cust_type">-</span>
-              </div>
-              <div style="text-align: left;">
-                <strong>الفرع:</strong> <span id="view_branch">عام</span><br />
-                <strong>طريقة الطلب:</strong> <span id="view_order_method">-</span><br />
-                <strong>منسق الطلب:</strong> <span id="view_coordinator">-</span><br />
-                <strong>التاريخ:</strong> <span id="view_date">-</span>
-              </div>
-            </div>
-
-            <table class="invoice-table">
-              <thead>
-                <tr>
-                  <th>#</th><th>الصنف</th><th>الكمية</th><th>المقاس</th><th>اللون</th><th>الاكسسوارات</th><th>الخصم</th><th>ملاحظات</th>
-                  <th class="hide-on-pdf"></th>
-                </tr>
-              </thead>
-              <tbody id="tableBody">
-                <tr><td colspan="9" class="empty-msg">الفاتورة فارغة حالياً.</td></tr>
-              </tbody>
-            </table>
-
-            <div class="invoice-footer">
-              البيانات والمقاسات والكميات الموضحة أعلاه تمثل مستند تفصيل رسمي صادر عن النظام الداخلي لشركة جار الخليج للصناعة.
-            </div>
-          </div>
-        </div>
-
-        <button type="button" id="pdfBtn" class="btn-pdf" onclick="generatePDF()" disabled>⬇️ تحميل فاتورة الطلب (PDF)</button>
-      </section>
+        <div class="form-group"><label>الملاحظات الفنية</label><textarea id="i_notes" rows="2"></textarea></div>
+        <button class="btn-add" onclick="addItem()">+ إضافة الصنف لقائمة الإنتاج</button>
     </div>
-  </div>
 
-  <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxEHiiuyAPoLL8WLkVfMkC8OGmr2k7mCaE_quaF392kPs22AWEQH12DnhI2rjxQUrrx/exec";
-    let itemsArray = [];
+    <div class="card">
+        <h2>معاينة المستند الرسمي</h2>
+        <div id="printArea" class="invoice-box">
+            <h2 style="text-align:center; color: var(--primary);">شركة جار الخليج للصناعة</h2>
+            <div class="header-meta">
+                <div>العميل: <span id="v_name">-</span><br>رقم الطلب: <span id="v_ord">-</span></div>
+                <div>الفرع: <span id="v_br">-</span><br>المنسق: <span id="v_co">-</span></div>
+                <div>النوع: <span id="v_ty">-</span><br>الطريقة: <span id="v_me">-</span></div>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>الصنف</th><th>المقاس</th><th>كمية</th><th>جوانب</th><th>هراب</th><th>اتجاه</th><th>خصم</th><th>تسليم</th><th>ملاحظات</th><th>X</th></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div style="display:flex; gap:15px; margin-top:25px;">
+            <button class="btn-export" style="background:var(--accent)" onclick="generatePDF()">تحميل PDF</button>
+            <button class="btn-export" style="background:var(--primary)" onclick="exportPNG()">تصدير PNG</button>
+            <button class="btn-save" onclick="saveToGoogle()">حفظ في قاعدة البيانات</button>
+        </div>
+    </div>
+</div>
 
-    function syncMeta() {
-      document.getElementById('view_name').textContent = document.getElementById('cust_name').value || '-';
-      document.getElementById('view_branch').textContent = document.getElementById('branch_name').value || 'عام';
-      document.getElementById('view_phone').textContent = document.getElementById('cust_phone').value || '-';
-      document.getElementById('view_cust_type').textContent = document.getElementById('cust_type').value || '-';
-      document.getElementById('view_order_method').textContent = document.getElementById('order_method').value || '-';
-      document.getElementById('view_coordinator').textContent = document.getElementById('order_coordinator').value || '-';
-      if(document.getElementById('view_date').textContent === '-') document.getElementById('view_date').textContent = new Date().toLocaleDateString('ar-SA');
-    }
+<script>
+   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZgabeFNGxNlde8rwmX1iIpnzItKABQUSAoz3_k5igmVVm5FppFeak59zeCaL9819y/exec";
 
-    function insertItem(e) {
-      e.preventDefault();
-      itemsArray.push({
-        name: document.getElementById('item_name').value,
-        qty: document.getElementById('item_qty').value,
-        size: document.getElementById('item_length').value + 'x' + document.getElementById('item_width').value,
-        color: document.getElementById('item_color').value,
-        acc: document.getElementById('item_acc').value,
-        discount: document.getElementById('item_discount').value,
-        notes: document.getElementById('notes').value
-      });
-      refreshTable();
-      document.getElementById('itemForm').reset();
-      document.getElementById('submitBtn').disabled = false;
-    }
-
-    function refreshTable() {
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = itemsArray.map((item, i) => `<tr>
-        <td>${i+1}</td><td>${item.name}</td><td>${item.qty}</td><td>${item.size}</td><td>${item.color}</td><td>${item.acc}</td><td>${item.discount}%</td><td>${item.notes}</td>
-        <td class="hide-on-pdf"><button class="action-del" onclick="itemsArray.splice(${i},1); refreshTable()">❌</button></td>
-      </tr>`).join('');
-    }
-
-   function generatePDF() {
-    const element = document.getElementById('printArea');
-    const filenameLabel = document.getElementById('cust_name').value || 'فاتورة_طلب';
-    const buttons = document.querySelectorAll('button');
-    
-    // إخفاء الأزرار قبل الطباعة
-    buttons.forEach(btn => btn.style.display = 'none');
-
-    const options = {
-        margin: 5,
-        filename: filenameLabel + '.pdf',
-        image: { type: 'jpeg', quality: 0.8 }, // تقليل الجودة قليلاً يمنع انهيار المتصفح على الجوال
-        html2canvas: { 
-            scale: 2, 
-            useCORS: true,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: document.documentElement.offsetWidth,
-            logging: false // إيقاف التسجيل لتسريع الأداء
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    // جلب رقم الطلب عند فتح الصفحة
+    window.onload = () => {
+        fetch(SCRIPT_URL).then(res => res.text()).then(id => document.getElementById('v_ord_in').value = id);
     };
-
-    // استخدام الدالة بشكل مباشر مع معالجة الأخطاء
-    html2pdf().set(options).from(element).save().then(() => {
-        buttons.forEach(btn => btn.style.display = 'block');
-    }).catch(err => {
-        console.error("PDF Error:", err);
-        buttons.forEach(btn => btn.style.display = 'block');
-        alert("تعذر إنشاء الـ PDF، يرجى التأكد من استخدام متصفح كروم وتجربة عدد أصناف أقل.");
-    });
-}
-
-   function submitToCloud() {
-      const name = document.getElementById('cust_name').value;
-      const phone = document.getElementById('cust_phone').value;
-      const coordinator = document.getElementById('order_coordinator').value;
-
-      if(!name || !phone || !coordinator || itemsArray.length === 0) {
-        alert("يرجى ملء البيانات الأساسية وإضافة صنف واحد على الأقل!");
-        return;
-      }
-      
-      const mainBtn = document.getElementById('submitBtn');
-      mainBtn.disabled = true;
-      mainBtn.textContent = 'جاري الحفظ والاعتماد...';
-
-      const payload = {
-        cust_name: name,
-        cust_phone: phone,
-        branch_name: document.getElementById('branch_name').value,
-        cust_type: document.getElementById('cust_type').value,
-        order_method: document.getElementById('order_method').value,
-        coordinator: coordinator,
-        items: itemsArray
-      };
-
-      fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      })
-      .then(response => response.text())
-      .then(() => {
-        // 1. إظهار رسالة النجاح
-        document.getElementById('successAlert').style.display = 'block';
-        
-        // 2. تغيير نص الزر
-        mainBtn.textContent = 'تم الاعتماد والتسجيل بنجاح ✅';
-        
-        // 3. تفعيل زر الـ PDF
-        const pdfBtn = document.getElementById('pdfBtn');
-        pdfBtn.disabled = false;
-        
-        // 4. إخفاء أزرار الحذف من الجدول ليكون المستند جاهزاً للطباعة
-        document.querySelectorAll('.hide-on-pdf').forEach(el => el.style.display = 'none');
-        
-        // 5. توليد رقم طلب عشوائي
-        document.getElementById('view_order_no').textContent = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
-      })
-      .catch(err => {
-        console.error(err);
-        alert("فشل في المزامنة سحابياً، يرجى مراجعة الاتصال.");
-        mainBtn.disabled = false;
-        mainBtn.textContent = 'حفظ واعتماد الفاتورة سحابياً';
-      });
+    function sync() {
+        document.getElementById('v_name').innerText = document.getElementById('v_name_in').value;
+        document.getElementById('v_ord').innerText = document.getElementById('v_ord_in').value;
+        document.getElementById('v_br').innerText = document.getElementById('v_br_in').value;
+        document.getElementById('v_co').innerText = document.getElementById('v_co_in').value;
+        document.getElementById('v_ty').innerText = document.getElementById('v_ty_in').value;
+        document.getElementById('v_me').innerText = document.getElementById('v_me_in').value;
     }
-  </script>
+
+    function addItem() {
+        let row = `<tr>
+            <td>${document.getElementById('i_name').value}</td>
+            <td>${document.getElementById('i_size').value}</td>
+            <td>${document.getElementById('i_qty').value}</td>
+            <td>${document.getElementById('i_side').value}</td>
+            <td>${document.getElementById('i_drain').value}</td>
+            <td>${document.getElementById('i_drain_dir').value}</td>
+            <td>${document.getElementById('i_disc').value}%</td>
+            <td>${document.getElementById('i_del').value}</td>
+            <td>${document.getElementById('i_notes').value}</td>
+            <td><button onclick="this.parentElement.parentElement.remove()" style="color:red; cursor:pointer; background:none; border:none;">X</button></td>
+        </tr>`;
+        document.getElementById('tableBody').innerHTML += row;
+    }
+
+function generatePDF() {
+    // 1. أخذ محتوى منطقة الطباعة وتنسيقاتها
+    const printArea = document.getElementById('printArea').innerHTML;
+    
+    // 2. إنشاء نافذة منبثقة
+    const win = window.open('', '_blank', 'width=800,height=600');
+    
+    // 3. كتابة محتوى الـ HTML داخل النافذة مع تضمين التنسيقات
+    win.document.write(`
+        <html lang="ar" dir="rtl">
+        <head>
+            <title>طباعة الطلب</title>
+            <style>
+                body { font-family: Tahoma, sans-serif; padding: 20px; direction: rtl; }
+                .invoice-box { border: 1px solid #ccc; padding: 20px; }
+                h2 { text-align: center; color: #19352d; }
+                .header-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #f9f9f9; padding: 10px; margin-bottom: 20px; font-size: 14px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                th { background: #19352d; color: #fff; padding: 8px; font-size: 12px; border: 1px solid #ccc; }
+                td { padding: 8px; border: 1px solid #ccc; text-align: center; font-size: 12px; }
+            </style>
+        </head>
+        <body>
+            <div class="invoice-box">
+                ${printArea}
+            </div>
+            <script>
+                // إزالة زر الحذف من الجدول عند الطباعة
+                window.onload = function() {
+                    const removeButtons = document.querySelectorAll('button');
+                    removeButtons.forEach(btn => btn.remove());
+                    window.print();
+                }
+            <\/script>
+        </body>
+        </html>
+    `);
+    
+    win.document.close();
+}
+    function exportPNG() { html2canvas(document.getElementById('printArea')).then(c => { let l=document.createElement('a'); l.href=c.toDataURL(); l.download='Order_' + document.getElementById('v_ord_in').value + '.png'; l.click(); }); }
+function saveToGoogle() {
+        const orderData = {
+            order: document.getElementById('v_ord_in').value,
+            name: document.getElementById('v_name_in').value,
+            branch: document.getElementById('v_br_in').value,
+            coordinator: document.getElementById('v_co_in').value,
+            type: document.getElementById('v_ty_in').value,
+            method: document.getElementById('v_me_in').value,
+            items: []
+        };
+        document.querySelectorAll('#tableBody tr').forEach(r => {
+            orderData.items.push({
+                name: r.cells[0].innerText, qty: r.cells[1].innerText,
+                side: r.cells[2].innerText, discount: r.cells[3].innerText,
+                delivery: r.cells[4].innerText
+            });
+        });
+        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(orderData) })
+            .then(() => { alert("تم الحفظ بنجاح!"); location.reload(); });
+    }
+</script>
 </body>
 </html>
