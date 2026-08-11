@@ -184,7 +184,10 @@
         </div>
         <div class="form-row">
             <div><label>الاكسسوارات</label><input type="text" id="i_acc"></div>
-            <div><label>موعد التسليم</label><input type="date" id="i_del"></div>
+            <div>
+                <label>موعد التسليم (اختر التاريخ)</label>
+                <input type="date" id="i_del">
+            </div>
         </div>
         <div class="form-row">
             <div><label>نسبة الخصم %</label><input type="number" id="i_disc" value="0" min="0" max="100"></div>
@@ -267,7 +270,6 @@
         sync();
     };
 
-    // جلب جميع المستندات ومعالجة الأرقام برمجياً لضمان دقة استخراج أكبر رقم مهما كانت طريقة تخزينه في القاعدة
     function fetchMaxOrderPlusOne() {
         const ordInput = document.getElementById('v_ord_in');
         ordInput.value = "جاري الفحص...";
@@ -276,7 +278,6 @@
             let maxVal = 0;
             querySnapshot.forEach((doc) => {
                 let data = doc.data();
-                // فحص الحقول المحتملة لرقم الطلب وتحويلها إلى رقم صحيح
                 let val = parseInt(data.orderNumber || data.order || doc.id || 0);
                 if (!isNaN(val) && val > maxVal) {
                     maxVal = val;
@@ -333,6 +334,20 @@
 
         const sizeAndModel = model ? `${size} - ${model}` : size;
 
+        // تنسيق موعد التسليم تلقائياً بصيغة ميلادية قصيرة + اسم اليوم (سبت، أحد، اثنين...)
+        const rawDel = document.getElementById('i_del').value;
+        let formattedDel = '-';
+        if (rawDel) {
+            let d = new Date(rawDel);
+            if (!isNaN(d.getTime())) {
+                let dateShort = d.toISOString().split('T')[0]; // صيغة قصيرة YYYY-MM-DD
+                let dayName = d.toLocaleDateString('ar-EG', { weekday: 'long' }); // اسم اليوم بالعربي
+                formattedDel = `${dateShort} (${dayName})`;
+            } else {
+                formattedDel = rawDel;
+            }
+        }
+
         let row = `<tr>
             <td>${document.getElementById('i_name').value}</td> 
             <td>${sizeAndModel}</td>          
@@ -342,7 +357,7 @@
             <td>${document.getElementById('i_drain').value}</td>
             <td>${document.getElementById('i_drain_dir').value}</td>
             <td>${document.getElementById('i_disc').value}%</td>
-            <td>${document.getElementById('i_del').value || '-'}</td>
+            <td>${formattedDel}</td>
             <td>${document.getElementById('i_acc').value || '-'}</td>
             <td>${document.getElementById('i_notes').value || '-'}</td>
             <td class="no-print"><button type="button" onclick="removeRow(this)" style="color:red; cursor:pointer; background:none; border:none; font-weight:bold;">✕</button></td>
@@ -358,6 +373,7 @@
         document.getElementById('i_acc').value = "";
         document.getElementById('i_disc').value = "0";
         document.getElementById('i_notes').value = "";
+        document.getElementById('i_del').value = "";
 
         checkTableState();
     }
